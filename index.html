@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Poultry Farm</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #063b16, #1b5e20, #43a047);
+  color: #183b20;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  padding: 25px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 30px 80px #0004;
+  text-align: center;
+}
+
+.logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  font-size: 40px;
+}
+
+h1 {
+  color: #1b5e20;
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.farm-name {
+  color: #888;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+}
+
+/* Three feed cards side by side */
+.feed-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.card {
+  min-width: 0;
+  padding: 22px 8px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+  border: 2px solid #c8e6c9;
+}
+
+.fixed-card {
+  background: #f1f8e9;
+  border-color: #dcedc8;
+}
+
+.label {
+  color: #456b49;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.weight-value {
+  display: inline-block;
+  max-width: 100%;
+  font-size: clamp(22px, 4.5vw, 39px);
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #0b5d1e;
+  overflow-wrap: anywhere;
+}
+
+.unit {
+  font-size: 14px;
+  font-weight: 800;
+  color: #397642;
+}
+
+.feed-status {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+  padding: 8px 3px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.insufficient {
+  color: #c62828;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+}
+
+.sufficient {
+  color: #2e7d32;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.feed-description {
+  margin-top: 9px;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Feed condition */
+.status-card {
+  padding: 22px 15px;
+  border-radius: 20px;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  margin-bottom: 18px;
+  transition: 0.25s;
+}
+
+.status-label {
+  color: #456b49;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+#poultryStatusValue {
+  font-size: 32px;
+  font-weight: 900;
+  color: #757575;
+}
+
+#poultryStatusDescription {
+  margin-top: 6px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Firebase connection indicator */
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 17px;
+  border-radius: 30px;
+  color: #2e7d32;
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #4caf50;
+}
+
+.offline {
+  color: #c62828;
+  background: #ffebee;
+  border-color: #ffcdd2;
+}
+
+.offline .status-dot {
+  background: #f44336;
+}
+
+.updated {
+  margin-top: 16px;
+  color: #999;
+  font-size: 13px;
+}
+
+.updated span {
+  color: #666;
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: 25px;
+  padding-top: 17px;
+  border-top: 1px solid #eee;
+  color: #999;
+  font-size: 12px;
+}
+
+.footer span {
+  color: #4caf50;
+  font-weight: 800;
+}
+
+/* Mobile adjustments; cards remain side by side */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 20px 10px;
+    border-radius: 22px;
+  }
+
+  .feed-container {
+    gap: 6px;
+  }
+
+  .card {
+    padding: 18px 4px;
+    border-radius: 14px;
+  }
+
+  .label {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .weight-value {
+    font-size: clamp(19px, 6vw, 28px);
+    letter-spacing: -0.5px;
+  }
+
+  .unit {
+    font-size: 11px;
+  }
+
+  .feed-status {
+    font-size: 9px;
+    padding: 7px 2px;
+    margin-top: 12px;
+  }
+
+  .feed-description {
+    font-size: 10px;
+  }
+
+  .status-card {
+    padding: 20px 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="container">
+
+  <div class="logo">🐔</div>
+
+  <h1>Smart Poultry Farm</h1>
+
+  <div class="farm-name">
+    IoT Farm Monitoring System
+  </div>
+
+  <!-- MAIZE, SOYA AND WHEAT: ONE ROW -->
+  <div class="feed-container">
+
+    <!-- Maize: Live Firebase Weight -->
+    <section class="card">
+      <div class="label">🌽 Maize</div>
+
+      <div>
+        <span class="weight-value" id="weight">0.000</span>
+        <span class="unit">kg</span>
+      </div>
+
+      <div id="maizeStatus" class="feed-status insufficient">
+        INSUFFICIENT
+      </div>
+
+      <div id="maizeDescription" class="feed-description">
+        Minimum required: 5 kg
+      </div>
+    </section>
+
+    <!-- Soya: Fixed 2 kg -->
+    <section class="card fixed-card">
+      <div class="label">🫘 Soya</div>
+
+      <div>
+        <span class="weight-value">2.000</span>
+        <span class="unit">kg</span>
+      </div>
+
+      <div class="feed-status sufficient">
+        FIXED WEIGHT
+      </div>
+
+      <div class="feed-description">
+        Set weight: 2 kg
+      </div>
+    </section>
+
+    <!-- Wheat: Fixed 3 kg -->
+    <section class="card fixed-card">
+      <div class="label">🌾 Wheat</div>
+
+      <div>
+        <span class="weight-value">3.000</span>
+        <span class="unit">kg</span>
+      </div>
+
+      <div class="feed-status sufficient">
+        FIXED WEIGHT
+      </div>
+
+      <div class="feed-description">
+        Set weight: 3 kg
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Poultry Condition from Firebase -->
+  <section class="status-card" id="poultryStatusCard">
+
+    <div class="status-label">
+      🐔 Feed Condition
+    </div>
+
+    <div id="poultryStatusValue">
+      WAITING...
+    </div>
+
+    <div id="poultryStatusDescription">
+      Waiting for status from ESP32
+    </div>
+
+  </section>
+
+  <!-- Firebase Connection -->
+  <div class="status" id="connectionStatus">
+    <span class="status-dot"></span>
+    <span id="statusText">Connecting to Firebase...</span>
+  </div>
+
+  <div class="updated">
+    Last update: <span id="lastUpdate">--</span>
+  </div>
+
+  <footer class="footer">
+    🌱 Smart Farming
+    <span>•</span>
+    IoT Technology
+    <span>•</span>
+    Poultry Management
+  </footer>
+
+</main>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/*
+  IMPORTANT:
+  Replace the placeholder values below with your Firebase
+  Console > Project settings > Your apps configuration.
+
+  Use the exact databaseURL from Firebase Console.
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA3pTV3tL5nLbQQ9hkVPLwOfUDw6MDqhRs",
+  authDomain: "poultry-d2561.firebaseapp.com",
+  databaseURL: "https://poultry-d2561-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "poultry-d2561",
+  storageBucket: "poultry-d2561.firebasestorage.app",
+  messagingSenderId: "1095290017276",
+  appId: "1:1095290017276:web:0d819d24dcde9d9158ce79"
+};
+const statusElement =
+  document.getElementById("connectionStatus");
+
+const statusText =
+  document.getElementById("statusText");
+
+const lastUpdate =
+  document.getElementById("lastUpdate");
+
+const weightElement =
+  document.getElementById("weight");
+
+const maizeStatus =
+  document.getElementById("maizeStatus");
+
+const maizeDescription =
+  document.getElementById("maizeDescription");
+
+function updateMaizeWeight(value) {
+  const weight = Number(value);
+
+  if (!Number.isFinite(weight) || weight < 0) {
+    maizeStatus.textContent = "INVALID";
+    maizeStatus.className =
+      "feed-status insufficient";
+
+    maizeDescription.textContent =
+      "Check the weight sensor reading";
+
+    return;
+  }
+
+  weightElement.textContent = weight.toFixed(3);
+
+  // Less than 5 kg = INSUFFICIENT.
+  if (weight < 5) {
+    maizeStatus.textContent = "INSUFFICIENT";
+    maizeStatus.className =
+      "feed-status insufficient";
+
+    maizeDescription.textContent =
+      "More maize is required.";
+
+  } else {
+    // 5 kg or more = SUFFICIENT.
+    maizeStatus.textContent = "SUFFICIENT";
+    maizeStatus.className =
+      "feed-status sufficient";
+
+    maizeDescription.textContent =
+      "Required weight reached.";
+  }
+
+  lastUpdate.textContent =
+    new Date().toLocaleTimeString();
+}
+
+try {
+
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // Listen for live maize weight at poultry/weight.
+  onValue(
+    ref(database, "poultry/weight"),
+
+    (snapshot) => {
+      const value = snapshot.val();
+
+      if (value !== null && value !== "") {
+        updateMaizeWeight(value);
+      } else {
+        maizeStatus.textContent = "NO DATA";
+        maizeStatus.className =
+          "feed-status insufficient";
+
+        maizeDescription.textContent =
+          "Waiting for maize weight.";
+      }
+    },
+
+    (error) => {
+      console.error("Weight listener error:", error);
+
+      maizeStatus.textContent = "READ ERROR";
+      maizeStatus.className =
+        "feed-status insufficient";
+
+      maizeDescription.textContent =
+        "Check Firebase permissions.";
+    }
+  );
+
+  // Listen for poultry status:
+  // 0 = GOOD, 1 = BAD.
+  onValue(
+    ref(database, "poultry/status"),
+
+    (snapshot) => {
+      const value = snapshot.val();
+
+      const card =
+        document.getElementById("poultryStatusCard");
+
+      const label =
+        document.getElementById("poultryStatusValue");
+
+      const description =
+        document.getElementById("poultryStatusDescription");
+
+      if (value === 0 || value === "0") {
+
+        label.textContent = "GOOD";
+        label.style.color = "#2e7d32";
+
+        description.textContent =
+          "Status received: 0";
+
+        card.style.background = "#e8f5e9";
+        card.style.borderColor = "#a5d6a7";
+
+      } else if (value === 1 || value === "1") {
+
+        label.textContent = "BAD";
+        label.style.color = "#c62828";
+
+        description.textContent =
+          "Status received: 1";
+
+        card.style.background = "#ffebee";
+        card.style.borderColor = "#ef9a9a";
+
+      } else {
+
+        label.textContent = "WAITING...";
+        label.style.color = "#757575";
+
+        description.textContent =
+          "Waiting for status 0 or 1 from ESP32.";
+
+        card.style.background = "#f5f5f5";
+        card.style.borderColor = "#e0e0e0";
+      }
+
+      lastUpdate.textContent =
+        new Date().toLocaleTimeString();
+    },
+
+    (error) => {
+      console.error("Status listener error:", error);
+
+      document.getElementById(
+        "poultryStatusValue"
+      ).textContent = "ERROR";
+
+      document.getElementById(
+        "poultryStatusDescription"
+      ).textContent =
+        "Cannot read status. Check Firebase rules.";
+    }
+  );
+
+  // Monitor Firebase connection.
+  onValue(
+    ref(database, ".info/connected"),
+
+    (snapshot) => {
+      const connected = snapshot.val() === true;
+
+      statusText.textContent = connected
+        ? "Firebase Connected"
+        : "Disconnected";
+
+      statusElement.classList.toggle(
+        "offline",
+        !connected
+      );
+    }
+  );
+
+} catch (error) {
+
+  console.error("Firebase initialization error:", error);
+
+  statusText.textContent =
+    "Firebase configuration error";
+
+  statusElement.classList.add("offline");
+}
+
+</script>
+
+</body>
+</html>
